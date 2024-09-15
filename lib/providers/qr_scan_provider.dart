@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../constant/variables.dart';
 import '../models/scan_response.dart';
 
 class QRScanProvider with ChangeNotifier {
@@ -12,46 +14,64 @@ class QRScanProvider with ChangeNotifier {
   ScanResponse? get scanResponse => _scanResponse;
   bool get isLoading => _isLoading;
 
-  Future<void> scanQRCode(String idUser, String idScan, String qrCode) async {
-    const url = 'https://iacc.web.id/api/scan';
+  Future<void> scanQRCode(String idScan, String qrCode) async {
+    final url = Uri.parse('${Variables.baseUrl}/api/scan');
 
     _isLoading = true;
     notifyListeners(); // Notifikasi perubahan state
 
     try {
-      // Siapkan request untuk multipart/form-data
-      var request = http.MultipartRequest('POST', Uri.parse(url))
-        ..fields['id_user'] = idUser.trim()
-        ..fields['id_scan'] = idScan.trim()
-        ..fields['qrcode'] = qrCode.trim();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
 
-      // Memformat QR Code sebelum dikirim
-      String formattedQrCode = qrCode.split('-')[0].trim();
-      request.fields['qrcode'] = formattedQrCode;
+      if (token == null) {
+        throw Exception('Token tidak ditemukan, silahkan login kembali');
+      }
+      print('Token ada: $token');
 
-      // Kirim permintaan HTTP POST ke API
-      final response = await request.send();
+      // Siapkan data yang akan dikirim dalam bentuk JSON
+      Map<String, dynamic> requestBody = {
+        'id_scan': idScan.trim(),
+        'qr_content': qrCode.trim(),
+      };
 
-      // Ambil respons dari request
-      final responseBody = await response.stream.bytesToString();
+      // Kirim permintaan HTTP POST ke API dengan content-type application/json
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode(requestBody),
+      );
 
-      // Jika response berhasil dan body tidak kosong
-      if (response.statusCode == 200 && responseBody.isNotEmpty) {
-        final data = json.decode(responseBody);
+      if (response.statusCode == 200) {
+        if (response.body.isNotEmpty) {
+          final data = json.decode(response.body);
 
-        // Parse JSON ke dalam model ScanResponse
-        _scanResponse = ScanResponse.fromJson(data);
+          // Log respons untuk debugging
+          print('Respons dari API: $data');
+
+          // Parse JSON ke dalam model ScanResponse
+          _scanResponse = ScanResponse.fromJson(data);
+
+          // Log hasil parsing
+          print('Status: ${_scanResponse?.status}');
+          print('Pesan: ${_scanResponse?.message}');
+        } else {
+          print('Respons dari API kosong.');
+          throw Exception('Failed to scan QR: Empty response.');
+        }
       } else {
-        // Jika ada masalah dengan response
-        print('Failed to scan QR: Empty or invalid response.');
-        throw Exception('Failed to scan QR: Empty or invalid response.');
+        // Log status kode dan body jika gagal
+        print('Status kode tidak 200: ${response.statusCode}');
+        print('Respons dari API (error): ${response.body}');
+        throw Exception('Failed to scan QR: Invalid response.');
       }
     } catch (e) {
-      // Tangkap dan tampilkan error jika terjadi
       print('Error scanning QR: $e');
       throw Exception('Error scanning QR: $e');
     } finally {
-      // Reset status loading setelah proses selesai
       _isLoading = false;
       notifyListeners(); // Notifikasi bahwa state telah berubah
     }

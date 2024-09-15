@@ -131,7 +131,7 @@ class _SplashScreenState extends State<SplashScreen>
               child: FadeTransition(
                 opacity: _opacityAnimation,
                 child: Image.asset(
-                  'assets/images/splashh.png',
+                  'assets/images/pager.png',
                   width: MediaQuery.of(context).size.width * 0.4, // Responsif
                   height: MediaQuery.of(context).size.height * 0.4, // Responsif
                   // width: 150,

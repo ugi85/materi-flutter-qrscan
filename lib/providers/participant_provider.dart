@@ -21,11 +21,11 @@ class ParticipantProvider with ChangeNotifier {
     try {
       // Ambil id_user dari SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? idUser = prefs.getString('id');
+      // String? idUser = prefs.getString('id');
       String? token = prefs.getString('token');
 
-      if (idUser == null) {
-        throw Exception('ID User tidak ditemukan');
+      if (token == null) {
+        throw Exception('token tidak ditemukan');
       }
 
       // Membuat permintaan POST untuk mendapatkan data list_scan

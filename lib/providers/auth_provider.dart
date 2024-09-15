@@ -35,10 +35,13 @@ class AuthProvider with ChangeNotifier {
     var url = Uri.parse('${Variables.baseUrl}/api/login');
 
     try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
       final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
           'username': username,

@@ -71,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/images/logo1.png',
+                'assets/images/logo2.png',
                 height: 70,
                 width: 380,
               ),
@@ -117,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: _login,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(
-                      255, 255, 94, 0), // Warna latar belakang
+                      255, 18, 160, 32), // Warna latar belakang
                   minimumSize: const Size(
                       double.infinity, 50), // Lebar penuh dan tinggi 50
                 ),

@@ -1,16 +1,16 @@
 class ScanResponse {
-  final String msg;
-  final String pesan;
+  final String status;
+  final String message;
 
   ScanResponse({
-    required this.msg,
-    required this.pesan,
+    required this.status,
+    required this.message,
   });
 
   factory ScanResponse.fromJson(Map<String, dynamic> json) {
     return ScanResponse(
-      msg: json['msg'] as String,
-      pesan: json['pesan'] as String,
+      status: json['status'] as String,
+      message: json['message'] as String,
     );
   }
 }

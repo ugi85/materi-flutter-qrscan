@@ -63,19 +63,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _scanQR() async {
-    // Ambil id_user dan id_scan dari provider atau state yang sesuai
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    String idUser = authProvider.user?.idUser ?? '';
     String idScan = Provider.of<ParticipantProvider>(context, listen: false)
             .selectedParticipant ??
         '';
-    print('idUser: $idUser, idScan: $idScan'); // Tambahkan log
+    print('idScan: $idScan'); // Tambahkan log
 
     // Validasi data
-    if (idUser.isEmpty || idScan.isEmpty) {
+    if (idScan.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Data user atau id scan tidak ditemukan'),
+          content: Text('id scan tidak ditemukan'),
         ),
       );
       return;
@@ -95,11 +92,11 @@ class _HomePageState extends State<HomePage> {
       // Panggil fungsi scanQRCode dari QRScanProvider
       final qrScanProvider =
           Provider.of<QRScanProvider>(context, listen: false);
-      await qrScanProvider.scanQRCode(idUser, idScan, qrCode);
+      await qrScanProvider.scanQRCode(idScan, qrCode);
 
       // Update _qrResult dengan pesan dari scanResponse
       setState(() {
-        _qrResult = qrScanProvider.scanResponse?.pesan ?? '';
+        _qrResult = qrScanProvider.scanResponse?.message ?? '';
       });
     }
   }
