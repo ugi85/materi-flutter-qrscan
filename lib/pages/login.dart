@@ -59,6 +59,11 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Mengambil ukuran layar menggunakan MediaQuery
+    final mediaQuery = MediaQuery.of(context);
+    final screenHeight = mediaQuery.size.height;
+    final screenWidth = mediaQuery.size.width;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
@@ -71,55 +76,87 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/images/logo2.png',
-                height: 70,
-                width: 380,
+                'assets/images/logo3.png',
+                height:
+                    screenHeight * 0.1, // Responsif berdasarkan tinggi layar
+                width: screenWidth * 0.9, // Responsif berdasarkan lebar layar
               ),
-              const SizedBox(height: 42),
-              TextFormField(
-                controller: _usernameController,
-                decoration: const InputDecoration(labelText: 'Username'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Username tidak boleh kosong';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isPasswordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
+              SizedBox(height: screenHeight * 0.06), // Jarak dinamis
+
+              // Dekorasi TextFormField untuk username
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 255, 255, 255),
+                  borderRadius: BorderRadius.circular(8.0),
+                  boxShadow: const [
+                    BoxShadow(
+                      blurRadius: 2.0,
+                      offset: Offset(1, 2),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                  ),
+                  ],
                 ),
-                obscureText: !_isPasswordVisible, // Atur visibilitas password
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Password tidak boleh kosong';
-                  }
-                  return null;
-                },
+                child: TextFormField(
+                  controller: _usernameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Username',
+                    border: OutlineInputBorder(), // Border untuk input field
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Username tidak boleh kosong';
+                    }
+                    return null;
+                  },
+                ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 13),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 255, 255, 255),
+                  borderRadius: BorderRadius.circular(8.0),
+                  boxShadow: const [
+                    BoxShadow(
+                      blurRadius: 2.0,
+                      offset: Offset(1, 2),
+                    ),
+                  ],
+                ),
+                child: TextFormField(
+                  controller: _passwordController,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
+                  ),
+                  obscureText: !_isPasswordVisible, // Atur visibilitas password
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Password tidak boleh kosong';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(height: 40),
+
               ElevatedButton(
                 onPressed: _login,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(
                       255, 18, 160, 32), // Warna latar belakang
-                  minimumSize: const Size(
-                      double.infinity, 50), // Lebar penuh dan tinggi 50
+                  minimumSize:
+                      Size(screenWidth * 0.8, 50), // Responsif lebar tombol
                 ),
                 child: const Text('Login',
                     style: TextStyle(fontSize: 16, color: Colors.white)),

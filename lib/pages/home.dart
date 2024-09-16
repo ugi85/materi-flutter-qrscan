@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../constant/variables.dart';
 import '../providers/auth_provider.dart';
 import '../providers/participant_provider.dart';
 import '../providers/qr_scan_provider.dart';
@@ -101,17 +104,33 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  final String baseUrl = 'https://iacc.web.id/api/report';
+  Future<String?> getToken() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(
+        'token'); // Sesuaikan dengan key yang digunakan saat menyimpan token
+  }
 
-  Future<void> _launchDownload(String userId) async {
-    final String downloadUrl = '$baseUrl/$userId';
-    final Uri url = Uri.parse(downloadUrl);
+  final String baseUrl = '${Variables.baseUrl}/report?download=csv';
+
+  Future<void> _launchDownload() async {
+    final String? token = await getToken();
+
+    if (token == null) {
+      throw Exception('Token tidak ditemukan, silahkan login kembali');
+    }
+    final Uri url = Uri.parse(baseUrl);
+
+    final response = await http.post(url, headers: {
+      'Authorization': 'Bearer $token',
+    });
 
     if (!await launchUrl(
       url,
       mode: LaunchMode.externalApplication,
     )) {
-      throw 'Could not launch $downloadUrl';
+      throw 'Could not launch $url';
+    } else {
+      throw 'Gagal mengunduh data. Status code: ${response.statusCode}';
     }
   }
 
@@ -168,9 +187,9 @@ class _HomePageState extends State<HomePage> {
                     child: Column(children: [
                       const Text(''),
                       Image.asset(
-                        'assets/images/logo2.png',
+                        'assets/images/logo3.png',
                         height: MediaQuery.of(context).size.height *
-                            0.2, // Responsif
+                            0.22, // Responsif
                         width: MediaQuery.of(context).size.width *
                             0.8, // Responsif
                         // height: 150,
@@ -234,7 +253,7 @@ class _HomePageState extends State<HomePage> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
                             padding: const EdgeInsets.symmetric(
-                                vertical: 16, horizontal: 25),
+                                vertical: 12, horizontal: 25),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(18),
                             ),
@@ -251,7 +270,7 @@ class _HomePageState extends State<HomePage> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
                             padding: const EdgeInsets.symmetric(
-                                vertical: 16, horizontal: 10),
+                                vertical: 12, horizontal: 10),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(18),
                             ),
@@ -265,7 +284,7 @@ class _HomePageState extends State<HomePage> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (userId != null && userId.isNotEmpty) {
-                          _launchDownload(userId);
+                          _launchDownload();
                         } else {
                           // Tampilkan Snackbar jika userId tidak ditemukan
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -288,12 +307,12 @@ class _HomePageState extends State<HomePage> {
                           );
                         }
                       },
-                      child: const Text('Download XLS',
+                      child: const Text('REPORT',
                           style: TextStyle(fontSize: 16, color: Colors.white)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         padding: const EdgeInsets.symmetric(
-                            vertical: 14, horizontal: 52),
+                            vertical: 13, horizontal: 72),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
                         ),
